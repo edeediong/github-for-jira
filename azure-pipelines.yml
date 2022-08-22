@@ -1,0 +1,25 @@
+pool:
+  vmImage: 'Ubuntu-latest'
+ 
+variables: 
+  URL: ''
+
+steps:
+  - checkout: self
+  - task: Bash@3
+    displayName: Extract Jira IDs
+    inputs:
+      targetType: 'inline' 
+      script: |
+        cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
+        Encoded="ID%20in%20"
+        JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
+        URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
+        echo "##vso[task.setvariable variable=URL]$URL" >> URL.md
+        
+  - task: DownloadBuildArtifacts@0
+    inputs:
+      buildType: 'current'
+      downloadType: 'single'
+      artifactName: 'drop'
+      downloadPath: '$(System.ArtifactsDirectory)'
