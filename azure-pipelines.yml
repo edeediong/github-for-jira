@@ -15,7 +15,7 @@ steps:
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
         URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
-        echo "##vso[task.setvariable variable=URL]$URL" >> URL.md
+        echo "##vso[task.setvariable variable=URL]$URL" >> $(Build.ArtifactStagingDirectory)/URL.md
         
   - task: PublishBuildArtifacts@1
     inputs:
