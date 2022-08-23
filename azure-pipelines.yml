@@ -12,8 +12,70 @@ steps:
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
         URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
-        echo "$URL" >> $(Build.ArtifactStagingDirectory)/URL.md
+        echo "$URL" >> $(Build.ArtifactStagingDirectory)/release-notes.md
         
+  - task: XplatGenerateReleaseNotes@3
+    inputs:
+      outputfile: 'release-notes.md'
+      templateLocation: 'InLine'
+      inlinetemplate: |
+        # Notes for build 
+                **Build Number**: {{buildDetails.id}}
+                **Build Trigger PR Number**: {{lookup buildDetails.triggerInfo 'pr.number'}} 
+                # Associated Pull Requests ({{pullRequests.length}})
+                {{#forEach pullRequests}}
+                {{#if isFirst}}### Associated Pull Requests (only shown if  PR) {{/if}}
+                *  **PR {{this.id}}**  {{this.title}}
+                {{/forEach}}
+                # Builds with associated WI/CS ({{builds.length}})
+                {{#forEach builds}}
+                {{#if isFirst}}## Builds {{/if}}
+                ##  Build {{this.build.buildNumber}}
+                {{#forEach this.commits}}
+                {{#if isFirst}}### Commits {{/if}}
+                - CS {{this.id}}
+                {{/forEach}}
+                {{#forEach this.workitems}}
+                {{#if isFirst}}### Workitems {{/if}}
+                - WI {{this.id}}
+                {{/forEach}} 
+                {{/forEach}}
+                # Global list of WI ({{workItems.length}})
+                {{#forEach workItems}}
+                {{#if isFirst}}## Associated Work Items (only shown if  WI) {{/if}}
+                *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
+                  - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
+                  - **Tags** {{lookup this.fields 'System.Tags'}}
+                {{/forEach}}
+                {{#forEach commits}}
+                {{#if isFirst}}### Associated commits{{/if}}
+                * ** ID{{this.id}}** 
+                  -  **Message:** {{this.message}}
+                  -  **Commited by:** {{this.author.displayName}} 
+                  -  **FileCount:** {{this.changes.length}}  
+                  -  **myname** {{this.changes.lengthj}}
+                {{#forEach this.changes}}
+                      -  **File path (TFVC or TfsGit):** {{this.item.path}}  
+                      -  **File filename (GitHub):** {{this.filename}}         
+                {{/forEach}}
+                {{/forEach}}
+                {{#forEach commits}}
+                    {{#contains this.message "fix:"}}
+                {{#if isFirst}}### Fixes  {{/if}}
+                 **Message:** {{this.message}}  |  {{this.author.displayName}}
+                    {{/contains}}
+                {{/forEach}}
+      dumpPayloadToConsole: false
+      dumpPayloadToFile: false
+      replaceFile: true
+      getParentsAndChildren: False
+      getAllParents: False
+      getIndirectPullRequests: False
+      stopOnError: False
+      considerPartiallySuccessfulReleases: False
+      checkForManuallyLinkedWI: False
+      wiqlFromTarget: 'WorkItems'
+
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
