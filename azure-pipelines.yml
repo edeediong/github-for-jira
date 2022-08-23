@@ -3,16 +3,6 @@ pool:
  
 steps:
   - checkout: self
-  - task: Bash@3
-    displayName: Extract Jira IDs
-    inputs:
-      targetType: 'inline' 
-      script: |
-        cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
-        Encoded="ID%20in%20"
-        JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
-        URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
-        echo "$URL" >> $(Build.ArtifactStagingDirectory)/URL.md
         
   - task: XplatGenerateReleaseNotes@3
     inputs:
@@ -68,6 +58,17 @@ steps:
       considerPartiallySuccessfulReleases: False
       checkForManuallyLinkedWI: False
       wiqlFromTarget: 'WorkItems'
+
+  - task: Bash@3
+    displayName: Extract Jira IDs
+    inputs:
+      targetType: 'inline' 
+      script: |
+        cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
+        Encoded="ID%20in%20"
+        JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
+        URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
+        echo "- **Jira URL:** $URL" >> $(Build.ArtifactStagingDirectory)/release-notes.md
 
   - task: PublishBuildArtifacts@1
     inputs:
