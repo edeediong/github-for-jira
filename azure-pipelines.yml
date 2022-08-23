@@ -12,7 +12,7 @@ steps:
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
         URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
-        echo "$URL" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        echo "$URL" >> $(Build.ArtifactStagingDirectory)/URL.md
         
   - task: XplatGenerateReleaseNotes@3
     inputs:
