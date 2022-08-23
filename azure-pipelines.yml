@@ -68,7 +68,7 @@ steps:
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
         URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
-        echo "- **Jira URL:** $URL" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        echo "- **Jira URL:** [Click Here to Access Jira URL]($URL)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
 
   - task: PublishBuildArtifacts@1
     inputs:
