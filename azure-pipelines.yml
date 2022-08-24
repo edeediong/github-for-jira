@@ -21,9 +21,7 @@ steps:
         **Build Number**: {{buildDetails.id}}
         **Build Trigger PR Number**: {{lookup buildDetails.triggerInfo 'pr.number'}} 
 
-        Testing buildDetails: {{buildDetails.}}
-        Testing build: {{build}}
-        
+        commits: {{builds.commits}}
 
         # Associated Pull Requests ({{pullRequests.length}})
         {{#forEach pullRequests}}
