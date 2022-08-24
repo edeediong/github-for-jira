@@ -78,7 +78,7 @@ steps:
     inputs:
       targetType: 'inline' 
       script: |
-        git log --pretty="%h - %s (%an)" -i -E --grep="feat:|fix:" > $(Build.ArtifactStagingDirectory)/release-notes.md
+        git log --pretty="* **%s** (%an)" -i -E --grep="feat:|fix:" > $(Build.ArtifactStagingDirectory)/release-notes.md
   - task: Bash@3
     displayName: Extract Jira IDs
     inputs:
