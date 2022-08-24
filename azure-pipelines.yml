@@ -23,7 +23,7 @@ steps:
 
         Testing buildDetails: {{buildDetails.}}
         Testing build: {{build}}
-        Testing commits: {{commits}}
+        
 
         # Associated Pull Requests ({{pullRequests.length}})
         {{#forEach pullRequests}}
