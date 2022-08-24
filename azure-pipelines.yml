@@ -1,8 +1,16 @@
+
+resources:
+  repositories:
+  - repository: github-for-jira
+    type: github
+    endpoint: edeediong
+    name:   atlassian/github-for-jira
+
 pool:
   vmImage: 'Ubuntu-latest'
  
 steps:
-  - checkout: self
+  - checkout: github-for-jira
         
   - task: XplatGenerateReleaseNotes@3
     inputs:
