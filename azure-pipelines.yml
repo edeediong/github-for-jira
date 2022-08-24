@@ -24,6 +24,7 @@ steps:
         Testing buildDetails: {{buildDetails.}}
         Testing build: {{build}}
         Testing commits: {{commits}}
+
         # Associated Pull Requests ({{pullRequests.length}})
         {{#forEach pullRequests}}
         {{#if isFirst}}### Associated Pull Requests (only shown if  PR) {{/if}}
@@ -84,6 +85,7 @@ steps:
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
         URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
         echo "- **Jira URL:** [Click Here to Access Jira URL]($URL)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        cat $(Build.ArtifactStagingDirectory)/release-notes.md
 
   - task: PublishBuildArtifacts@1
     inputs:
