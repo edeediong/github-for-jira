@@ -12,48 +12,14 @@ pool:
 steps:
   - checkout: github-for-jira
         
-  - task: XplatGenerateReleaseNotes@3
+  - task: GitHubRelease@1
     inputs:
-      outputfile: '$(Build.ArtifactStagingDirectory)/release-notes.md'
-      templateLocation: 'InLine'
-      inlinetemplate: |
-        # {{buildDetails.definition.name}} {{buildDetails.buildNumber}}
-        * **Branch**: {{buildDetails.sourceBranch}}
-        * **Tags**: {{buildDetails.tags}}
-        * **Completed**: {{buildDetails.finishTime}}
-
-        ## Associated Pull Requests
-        {{#forEach pullRequests}}
-        * **[{{this.pullRequestId}}]({{replace (replace this.url "_apis/git/repositories" "_git") "pullRequests" "pullRequest"}})** {{this.title}}
-        * Created by {{this.createdBy.displayName}}  {{thos.creationDate}}
-        * Reviewed by:
-        {{#forEach this.reviewers}}
-          * {{this.displayName}}
-        {{/forEach}}
-        * Associated Work Items
-        {{#each_with_sort_by_field  this.associatedWorkitems "System.Tags"}}
-          {{#with (lookup_a_work_item ../../relatedWorkItems this.url)}}
-            - [{{this.id}}]({{replace this.url "_apis/wit/workItems" "_workitems/edit"}}) - {{lookup this.fields 'System.Title'}}
-          {{/with}}
-        {{/each_with_sort_by_field}}
-        * Associated Commits (this includes commits on the PR source branch not associated directly with the build)
-        {{#forEach this.associatedCommits}}
-            - [{{truncate this.commitId 7}}]({{this.remoteUrl}}) - {{get_only_message_firstline this.comment}}
-            {{#with (lookup_a_pullrequest_by_merge_commit ../../inDirectlyAssociatedPullRequests  this.commitId)}}
-              - Associated PR {{this.pullRequestId}} - {{this.title}}
-            {{/with}}
-        {{/forEach}}
-        {{/forEach}}
-      dumpPayloadToConsole: false
-      dumpPayloadToFile: false
-      replaceFile: true
-      getParentsAndChildren: False
-      getAllParents: False
-      getIndirectPullRequests: False
-      stopOnError: False
-      considerPartiallySuccessfulReleases: False
-      checkForManuallyLinkedWI: False
-      wiqlFromTarget: 'WorkItems'
+      repositoryName: '$(Build.Repository.Name)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'gitTag'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
 
   - task: Bash@3
     displayName: Extract Jira IDs
