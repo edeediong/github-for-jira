@@ -14,6 +14,7 @@ steps:
         
   - task: GitHubRelease@1
     inputs:
+      gitHubConnection: 'edeediong'
       repositoryName: '$(Build.Repository.Name)'
       action: 'create'
       target: '$(Build.SourceVersion)'
