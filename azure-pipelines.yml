@@ -84,7 +84,7 @@ steps:
     inputs:
       targetType: 'inline' 
       script: |
-        echo {{ variables.start_time }} >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        echo ${{ variables.start_time }} >> $(Build.ArtifactStagingDirectory)/release-notes.md
         cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
