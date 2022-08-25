@@ -48,7 +48,7 @@ steps:
       targetType: 'inline' 
       script: |
         echo "## Commit History" >> $(Build.ArtifactStagingDirectory)/release-notes.md
-        cd '$(System.DefaultWorkingDirectory)' && git log --pretty="* **%s** (%an)" -i -E --grep="feat:|fix:" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        cd '$(System.DefaultWorkingDirectory)' && git log --pretty="* **%s** (%an)" v0.38.153..$(tag_name)-i -E --grep="feat:|fix:" >> $(Build.ArtifactStagingDirectory)/release-notes.md
 
   - task: PublishBuildArtifacts@1
     inputs:
