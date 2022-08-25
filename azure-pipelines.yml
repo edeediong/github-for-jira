@@ -4,7 +4,7 @@ parameters:
   type: string
   default: '0.0.1'
   values:
-  - '0.38.154'
+  - 'v0.38.154'
   - '0.0.1'
   - '1.0.0'
 
