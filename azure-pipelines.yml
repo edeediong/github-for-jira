@@ -1,3 +1,22 @@
+parameters:
+- name: ProjectName
+  displayName: Project Name
+  type: string
+  default: LeoTest
+  values:
+  - LeoTest
+- name: repoName
+  displayName: repo Name
+  type: string
+  default: TestRepo
+  values:
+  - TestRepo
+- name: branchRef
+  displayName: Branch Name
+  type: string
+  default: Dev
+  values:
+  - Dev
 
 resources:
   repositories:
