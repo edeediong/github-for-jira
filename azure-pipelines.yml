@@ -1,60 +1,16 @@
 parameters:
-- name: projectname
-  displayName: Project Name
+- name: Repository
+  displayName: Repository
   type: string
   default: Test
   values:
-  - flanksource
-  - OldMutual
-  - atlassian
-
-- name: repository
-  displayName: repo Name
-  type: string
-  default: TestRepo
-  values:
-  - canary-checker
-  - infrastructure
-  - github-for-jira
-
-- name: branchref
-  displayName: Branch Name
-  type: string
-  default: Test
-  values:
-  - main
-  - dev
-
-- name: endpoint
-  displayName: Endpoint
-  type: string
-  default: Test
-  values:
-  - TestEndpoint
-  - edeediong
-
-- name: repotype
-  displayName: Repo Type
-  type: string
-  default: github
-  values:
-  - github
-  - git
-  - bitbucket
-
-resources:
-  repositories:
-  - repository: ${{ parameters.repository }}
-    type: ${{ parameters.repotype }}
-    endpoint: ${{ parameters.endpoint }}
-    name:   ${{ parameters.projectname }}/${{ parameters.repository }}
-
+  - github://atlassian/github-for-jira
 
 pool:
   vmImage: 'Ubuntu-latest'
 
 steps:
-  - checkout: github://atlassian/github-for-jira
+  - checkout: ${{ parameters.Repository }}
         
   # - task: XplatGenerateReleaseNotes@3
   #   inputs:
