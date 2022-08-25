@@ -1,5 +1,5 @@
 parameters:
-- name: ProjectName
+- name: projectname
   displayName: Project Name
   type: string
   default: Test
@@ -8,7 +8,7 @@ parameters:
   - OldMutual
   - atlassian
 
-- name: Repository
+- name: repository
   displayName: repo Name
   type: string
   default: TestRepo
@@ -17,7 +17,7 @@ parameters:
   - infrastructure
   - github-for-jira
 
-- name: branchRef
+- name: branchref
   displayName: Branch Name
   type: string
   default: Test
@@ -25,7 +25,7 @@ parameters:
   - main
   - dev
 
-- name: Endpoint
+- name: endpoint
   displayName: Endpoint
   type: string
   default: Test
@@ -33,7 +33,7 @@ parameters:
   - TestEndpoint
   - edeediong
 
-- name: RepoType
+- name: repotype
   displayName: Repo Type
   type: string
   default: github
@@ -42,103 +42,105 @@ parameters:
   - git
   - bitbucket
 
-pool:
-  vmImage: 'Ubuntu-latest'
- 
 resources:
   repositories:
-    - repository: github-for-jira
-      type: ${{ parameters.RepoType }}
-      endpoint: ${{ parameters.Endpoint }}
-      name:   ${{ parameters.ProjectName }}/${{ parameters.Repository }}
+  - repository: ${{ parameters.repository }}
+    type: ${{ parameters.repotype }}
+    endpoint: ${{ parameters.endpoint }}
+    name:   ${{ parameters.projectname }}/${{ parameters.repository }}
 
+jobs:
+- job: Release
+  displayName: Generate Release Notes
+  pool:
+    vmImage: 'Ubuntu-latest'
+ 
+  steps:
+    - checkout: ${{ parameters.Repository }}
+          
+    # - task: XplatGenerateReleaseNotes@3
+    #   inputs:
+    #     outputfile: '$(Build.ArtifactStagingDirectory)/release-notes.md'
+    #     templateLocation: 'InLine'
+    #     inlinetemplate: |
+    #       # Notes for build 
+    #       **Build Number**: {{buildDetails.id}}
+    #       **Build Trigger PR Number**: {{lookup buildDetails.triggerInfo 'pr.number'}} 
 
-steps:
-  - checkout: ${{ parameters.Repository }}
-        
-  # - task: XplatGenerateReleaseNotes@3
-  #   inputs:
-  #     outputfile: '$(Build.ArtifactStagingDirectory)/release-notes.md'
-  #     templateLocation: 'InLine'
-  #     inlinetemplate: |
-  #       # Notes for build 
-  #       **Build Number**: {{buildDetails.id}}
-  #       **Build Trigger PR Number**: {{lookup buildDetails.triggerInfo 'pr.number'}} 
+    #       commits: {{builds.commits}}
 
-  #       commits: {{builds.commits}}
+    #       # Associated Pull Requests ({{pullRequests.length}})
+    #       {{#forEach pullRequests}}
+    #       {{#if isFirst}}### Associated Pull Requests (only shown if  PR) {{/if}}
+    #       *  **PR {{this.id}}**  {{this.title}}
+    #       {{/forEach}}
+          
+    #       # Builds with associated WI/CS ({{builds.length}})
+    #       {{#forEach builds}}
+    #       {{#if isFirst}}## Builds {{/if}}
+    #       ##  Build {{this.build.buildNumber}}
+    #       {{#forEach this.commits}}
+    #       {{#if isFirst}}### Commits {{/if}}
+    #       - CS {{this.id}}
+    #       {{/forEach}}
+    #       {{#forEach this.workitems}}
+    #       {{#if isFirst}}### Workitems {{/if}}
+    #       - WI {{this.id}}
+    #       {{/forEach}} 
+    #       {{/forEach}}
+          
+    #       # Global list of WI ({{workItems.length}})
+    #       {{#forEach workItems}}
+    #       {{#if isFirst}}## Associated Work Items (only shown if  WI) {{/if}}
+    #       *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
+    #         - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
+    #         - **Tags** {{lookup this.fields 'System.Tags'}}
+    #       {{/forEach}}
+          
+    #       {{#forEach commits}}
+    #       {{#if isFirst}}### Associated commits{{/if}}
+    #       * ** ID{{this.id}}** 
+    #         -  **Message:** {{this.message}}
+    #         -  **Commited by:** {{this.author.displayName}} 
+    #         -  **FileCount:** {{this.changes.length}} 
+    #       {{#forEach this.changes}}
+    #             -  **File path (TFVC or TfsGit):** {{this.item.path}}  
+    #             -  **File filename (GitHub):** {{this.filename}}  
+    #       {{/forEach}}
+    #       {{/forEach}}
+    #     dumpPayloadToConsole: false
+    #     dumpPayloadToFile: false
+    #     replaceFile: True
+    #     getParentsAndChildren: False
+    #     getAllParents: False
+    #     getIndirectPullRequests: False
+    #     stopOnError: False
+    #     considerPartiallySuccessfulReleases: False
+    #     checkForManuallyLinkedWI: False
+    #     wiqlFromTarget: 'WorkItems'
+    - task: Bash@3
+      displayName: Extract Jira IDs
+      inputs:
+        targetType: 'inline' 
+        script: |
+          echo "## Release Notes" > $(Build.ArtifactStagingDirectory)/release-notes.md
+          cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
+          Encoded="ID%20in%20"
+          JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
+          URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
+          echo "- **Jira URL:** [Click Here to Access Jira URL]($URL)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+          cat $(Build.ArtifactStagingDirectory)/release-notes.md
 
-  #       # Associated Pull Requests ({{pullRequests.length}})
-  #       {{#forEach pullRequests}}
-  #       {{#if isFirst}}### Associated Pull Requests (only shown if  PR) {{/if}}
-  #       *  **PR {{this.id}}**  {{this.title}}
-  #       {{/forEach}}
-        
-  #       # Builds with associated WI/CS ({{builds.length}})
-  #       {{#forEach builds}}
-  #       {{#if isFirst}}## Builds {{/if}}
-  #       ##  Build {{this.build.buildNumber}}
-  #       {{#forEach this.commits}}
-  #       {{#if isFirst}}### Commits {{/if}}
-  #       - CS {{this.id}}
-  #       {{/forEach}}
-  #       {{#forEach this.workitems}}
-  #       {{#if isFirst}}### Workitems {{/if}}
-  #       - WI {{this.id}}
-  #       {{/forEach}} 
-  #       {{/forEach}}
-        
-  #       # Global list of WI ({{workItems.length}})
-  #       {{#forEach workItems}}
-  #       {{#if isFirst}}## Associated Work Items (only shown if  WI) {{/if}}
-  #       *  **{{this.id}}**  {{lookup this.fields 'System.Title'}}
-  #         - **WIT** {{lookup this.fields 'System.WorkItemType'}} 
-  #         - **Tags** {{lookup this.fields 'System.Tags'}}
-  #       {{/forEach}}
-        
-  #       {{#forEach commits}}
-  #       {{#if isFirst}}### Associated commits{{/if}}
-  #       * ** ID{{this.id}}** 
-  #         -  **Message:** {{this.message}}
-  #         -  **Commited by:** {{this.author.displayName}} 
-  #         -  **FileCount:** {{this.changes.length}} 
-  #       {{#forEach this.changes}}
-  #             -  **File path (TFVC or TfsGit):** {{this.item.path}}  
-  #             -  **File filename (GitHub):** {{this.filename}}  
-  #       {{/forEach}}
-  #       {{/forEach}}
-  #     dumpPayloadToConsole: false
-  #     dumpPayloadToFile: false
-  #     replaceFile: True
-  #     getParentsAndChildren: False
-  #     getAllParents: False
-  #     getIndirectPullRequests: False
-  #     stopOnError: False
-  #     considerPartiallySuccessfulReleases: False
-  #     checkForManuallyLinkedWI: False
-  #     wiqlFromTarget: 'WorkItems'
-  - task: Bash@3
-    displayName: Extract Jira IDs
-    inputs:
-      targetType: 'inline' 
-      script: |
-        echo "## Release Notes" > $(Build.ArtifactStagingDirectory)/release-notes.md
-        cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
-        Encoded="ID%20in%20"
-        JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
-        URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
-        echo "- **Jira URL:** [Click Here to Access Jira URL]($URL)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
-        cat $(Build.ArtifactStagingDirectory)/release-notes.md
+    - task: Bash@3
+      displayName: Git Commit Messages
+      inputs:
+        targetType: 'inline' 
+        script: |
+          echo "## Commit History From $(date)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+          git log --pretty="* **%s** (%an)" --since="$(date)" -i -E --grep="feat:|fix:" >> $(Build.ArtifactStagingDirectory)/release-notes.md
 
-  - task: Bash@3
-    displayName: Git Commit Messages
-    inputs:
-      targetType: 'inline' 
-      script: |
-        echo "## Commit History From $(date)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
-        git log --pretty="* **%s** (%an)" --since="$(date)" -i -E --grep="feat:|fix:" >> $(Build.ArtifactStagingDirectory)/release-notes.md
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
