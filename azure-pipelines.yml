@@ -1,73 +1,40 @@
 parameters:
-- name: project
-  displayName: Project Name
+- name: tag
+  displayName: tag
   type: string
-  default: atlassian
+  default: '0.0.1'
   values:
-  - flanksource
-  - OldMutual
-  - atlassian
+  - '0.0.1'
+  - '0.1.0'
+  - '1.0.0'
 
-- name: repository
-  displayName: Repository Name
-  type: string
-  default: github-for-jira
-  values:
-  - canary-checker
-  - infrastructure
-  - github-for-jira
-
-- name: repotype
-  displayName: Repository Type
-  type: string
-  default: github
-  values:
-  - github
-  - git
-  - bitbucket
-
-- name: endpoint
-  displayName: Endpoint
-  type: string
-  default: edeediong
-  values:
-  - test
-  - edeediong
-  
 
 variables:
-  - name: repository_name
-    value: ${{ parameters.repository }}
+  - name: tag_name
+    value: ${{ parameters.tag }}
 
-  - name: project_name
-    value: ${{ parameters.project }}
-
-  - name: repo_type
-    value: ${{ parameters.repotype }}
-
-  - name: endpoint_name
-    value: ${{ parameters.endpoint }}
 
 pool:
   vmImage: 'Ubuntu-latest'
 
 resources:
   repositories:
-  - repository: $(repository_name) 
-    type: $(repo_type)
-    name: $(project_name)/$(repository_name)  
-    endpoint: $(endpoint_name)
+  - repository: github-for-jira
+    type: github
+    name: atlassian/github-for-jira
+    ref: 'refs/tags/$(tag_name)'
+    endpoint: edeediong
 
 steps:
-  - checkout: $(repository)
+  - checkout: github-for-jira
         
   
   - task: Bash@3
-    displayName: Extract Jira IDs
+    displayName: Boiler Release Note 
     inputs:
       targetType: 'inline' 
       script: |
-        echo "## Release Notes" > $(Build.ArtifactStagingDirectory)/release-notes.md
+        echo "## Release Notes $(tag_name)" > $(Build.ArtifactStagingDirectory)/release-notes.md
         cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
