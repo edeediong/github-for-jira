@@ -44,10 +44,10 @@ parameters:
 
 resources:
   repositories:
-  - repository: ${{ parameters.Repository }}
-    type: ${{ parameters.RepoType }}
-    endpoint: ${{ parameters.Endpoint }}
-    name:   ${{ parameters.ProjectName }}/${{ parameters.Repository }}
+    - repository: ${{ parameters.Repository }}
+      type: ${{ parameters.RepoType }}
+      endpoint: ${{ parameters.Endpoint }}
+      name:   ${{ parameters.ProjectName }}/${{ parameters.Repository }}
 
 pool:
   vmImage: 'Ubuntu-latest'
