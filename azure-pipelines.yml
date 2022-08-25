@@ -42,16 +42,17 @@ parameters:
   - git
   - bitbucket
 
+pool:
+  vmImage: 'Ubuntu-latest'
+ 
 resources:
   repositories:
-    - repository: ${{ parameters.Repository }}
+    - repository: github-for-jira
       type: ${{ parameters.RepoType }}
       endpoint: ${{ parameters.Endpoint }}
       name:   ${{ parameters.ProjectName }}/${{ parameters.Repository }}
 
-pool:
-  vmImage: 'Ubuntu-latest'
- 
+
 steps:
   - checkout: ${{ parameters.Repository }}
         
