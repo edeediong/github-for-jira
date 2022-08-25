@@ -36,16 +36,16 @@ parameters:
   
 
 variables:
-  - name: repository
+  - name: repository_name
     value: ${{ parameters.repository }}
 
-  - name: project
+  - name: project_name
     value: ${{ parameters.project }}
 
-  - name: repotype
+  - name: repo_type
     value: ${{ parameters.repotype }}
 
-  - name: endpoint
+  - name: endpoint_name
     value: ${{ parameters.endpoint }}
 
 pool:
@@ -53,10 +53,10 @@ pool:
 
 resources:
   repositories:
-  - repository: $(repository) 
-    type: $(type)
-    name: $(project)/$(repository)  
-    endpoint: $(endpoint)
+  - repository: $(repository_name) 
+    type: $(repo_type)
+    name: $(project_name)/$(repository_name)  
+    endpoint: $(endpoint_name)
 
 steps:
   - checkout: $(repository)
