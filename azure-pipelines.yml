@@ -36,10 +36,17 @@ parameters:
   
 
 variables:
-  repository: ${{ parameters.repository }}
-  project: ${{ parameters.project }}
-  repotype: ${{ parameters.repotype }}
-  endpoint: ${{ parameters.endpoint }}
+  - name: repository
+    value: ${{ parameters.repository }}
+
+  - name: project
+    value: ${{ parameters.project }}
+
+  - name: repotype
+    value: ${{ parameters.repotype }}
+
+  - name: endpoint
+    value: ${{ parameters.endpoint }}
 
 pool:
   vmImage: 'Ubuntu-latest'
@@ -47,9 +54,9 @@ pool:
 resources:
   repositories:
   - repository: $(repository) 
-    type: github
+    type: $(type)
     name: $(project)/$(repository)  
-    endpoint: edeediong
+    endpoint: $(endpoint)
 
 steps:
   - checkout: $(repository)
