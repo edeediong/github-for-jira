@@ -2,28 +2,52 @@ parameters:
 - name: ProjectName
   displayName: Project Name
   type: string
-  default: LeoTest
+  default: Test
   values:
-  - LeoTest
-- name: repoName
+  - flanksource
+  - OldMutual
+  - atlassian
+
+- name: Repository
   displayName: repo Name
   type: string
   default: TestRepo
   values:
-  - TestRepo
+  - canary-checker
+  - infrastructure
+  - github-for-jira
+
 - name: branchRef
   displayName: Branch Name
   type: string
-  default: Dev
+  default: Test
   values:
-  - Dev
+  - main
+  - dev
+
+- name: Endpoint
+  displayName: Endpoint
+  type: string
+  default: Test
+  values:
+  - TestEndpoint
+  - edeediong
+
+- name: RepoType
+  displayName: Repo Type
+  type: string
+  default: github
+  values:
+  - github
+  - git
+  - bitbucket
 
 resources:
   repositories:
-  - repository: github-for-jira
-    type: github
-    endpoint: edeediong
-    name:   atlassian/github-for-jira
+  - repository: ${{ parameters.Repository }}
+    type: ${{ parameters.RepoType }}
+    endpoint: ${{ parameters.Endpoint }}
+    name:   ${{ parameters.ProjectName }}/${{ parameters.Repository }}
 
 pool:
   vmImage: 'Ubuntu-latest'
