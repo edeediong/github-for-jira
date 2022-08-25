@@ -47,7 +47,7 @@ pool:
 resources:
   repositories:
   - repository: $(repository) 
-    type: $(type)
+    type: github
     name: $(project)/$(repository)  
     endpoint: edeediong
 
