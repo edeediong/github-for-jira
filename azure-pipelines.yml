@@ -52,7 +52,7 @@ resources:
     endpoint: $(endpoint)  
 
 steps:
-  - checkout: $(type)://$(project)/$(repository)
+  - checkout: $(repository)
         
   
   - task: Bash@3
