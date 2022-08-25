@@ -53,7 +53,7 @@ pool:
   vmImage: 'Ubuntu-latest'
  
 steps:
-  - checkout: github-for-jira
+  - checkout: ${{ parameters.Repository }}
         
   # - task: XplatGenerateReleaseNotes@3
   #   inputs:
@@ -115,25 +115,26 @@ steps:
   #     considerPartiallySuccessfulReleases: False
   #     checkForManuallyLinkedWI: False
   #     wiqlFromTarget: 'WorkItems'
-
-  - task: Bash@3
-    displayName: Git Commit Messages
-    inputs:
-      targetType: 'inline' 
-      script: |
-        git log --pretty="* **%s** (%an)" -i -E --grep="feat:|fix:" > $(Build.ArtifactStagingDirectory)/release-notes.md
   - task: Bash@3
     displayName: Extract Jira IDs
     inputs:
       targetType: 'inline' 
       script: |
-        echo ${{ variables.start_time }} >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        echo "## Release Notes" > $(Build.ArtifactStagingDirectory)/release-notes.md
         cd '$(System.DefaultWorkingDirectory)' && git log > log.txt
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
         URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
         echo "- **Jira URL:** [Click Here to Access Jira URL]($URL)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
         cat $(Build.ArtifactStagingDirectory)/release-notes.md
+
+  - task: Bash@3
+    displayName: Git Commit Messages
+    inputs:
+      targetType: 'inline' 
+      script: |
+        echo "## Commit History From $(date)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        git log --pretty="* **%s** (%an)" --since="$(date)" -i -E --grep="feat:|fix:" >> $(Build.ArtifactStagingDirectory)/release-notes.md
 
   - task: PublishBuildArtifacts@1
     inputs:
