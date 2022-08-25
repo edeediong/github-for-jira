@@ -4,8 +4,8 @@ parameters:
   type: string
   default: '0.0.1'
   values:
+  - '0.38.154'
   - '0.0.1'
-  - '0.1.0'
   - '1.0.0'
 
 
@@ -19,14 +19,14 @@ pool:
 
 resources:
   repositories:
-  - repository: github-for-jira
+  - repository: canary-checker
     type: github
-    name: atlassian/github-for-jira
+    name: flanksource/canary-checker
     ref: 'refs/tags/$(tag_name)'
     endpoint: edeediong
 
 steps:
-  - checkout: github-for-jira
+  - checkout: canary-checker
         
   
   - task: Bash@3
