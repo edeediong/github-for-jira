@@ -1,34 +1,16 @@
 parameters:
-- name: Environment
+- name: Repo
+  type: string
   values:
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
-  - dev-0a
-  - dev-01
-  - dev-02
+    - OIPA_DEV0BASE
+    - OIPA_BOT
+    - OIPA_MAL
+    - OIPA_DEV_QA
+    - OIPA_DEV_SANDBOX
 
+- name: Branch
+  type: string
+  default: main
 
 variables:
   - name: tag_name
@@ -38,16 +20,11 @@ variables:
 pool:
   vmImage: 'Ubuntu-latest'
 
-resources:
-  repositories:
-  - repository: canary-checker
-    type: github
-    name: flanksource/canary-checker
-    ref: 'refs/tags/$(tag_name)'
-    endpoint: edeediong
-
 steps:
-  - checkout: canary-checker
+  - checkout: git://OIPA/Infrastructure
+    fetchDepth: 1
+  - checkout: git://OIPA/${{ parameters.Repo }}@${{ parameters.Branch }}
+    fetchDepth: 1
         
   
   - task: Bash@3
@@ -60,7 +37,8 @@ steps:
         Encoded="ID%20in%20"
         JiraID=$(cat log.txt | grep -Po '\w+-\d+' | sort | uniq | sed -z 's/\n/,/g;s/,$/\n/')
         URL="https://oldmutual.atlassian.net/issues/?jql=${Encoded}(${JiraID})"
-        echo "- **Jira URL:** [Click Here to Access Jira URL]($URL)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
+        echo "**Jira URL:** [Click Here to Access Jira URL]($URL)" > $(Build.ArtifactStagingDirectory)/release-notes.md
+        echo "## Release Notes $(tag_name)" >> $(Build.ArtifactStagingDirectory)/release-notes.md
         cat $(Build.ArtifactStagingDirectory)/release-notes.md
 
   - task: Bash@3
