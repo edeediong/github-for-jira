@@ -1,12 +1,7 @@
 parameters:
-- name: tag
-  displayName: tag
-  type: string
-  default: '0.0.1'
+- name: Repository
   values:
-  - 'v0.38.154'
-  - '0.0.1'
-  - '1.0.0'
+  - dev-0a
 
 
 variables:
