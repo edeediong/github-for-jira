@@ -1,5 +1,5 @@
 parameters:
-- name: Repository
+- name: Environment
   values:
   - dev-0a
 
